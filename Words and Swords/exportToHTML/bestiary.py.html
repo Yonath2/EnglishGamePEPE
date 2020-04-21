@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>bestiary.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+bestiary.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">enemy </span><span class="s0">import </span><span class="s1">Enemy</span>
+<span class="s0">from </span><span class="s1">animation </span><span class="s0">import </span><span class="s1">Animation</span>
+<span class="s0">import </span><span class="s1">pygame</span><span class="s0">, </span><span class="s1">os</span>
+
+
+<span class="s0">class </span><span class="s1">Bestiary:</span>
+    <span class="s1">enemies = {</span><span class="s2">&quot;bad_guy&quot;</span><span class="s1">: Enemy(pygame.image.load(</span><span class="s2">&quot;animations/enemies/bad_guy/blinking/1.png&quot;</span><span class="s1">))}</span>
+
+    <span class="s1">@classmethod</span>
+    <span class="s0">def </span><span class="s1">load_animations(cls</span><span class="s0">, </span><span class="s1">name):</span>
+        <span class="s1">load_frames = {}</span>
+        <span class="s1">animations = {}</span>
+        <span class="s1">animation_name = os.listdir(</span><span class="s2">f&quot;animations/enemies/</span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+        <span class="s0">for </span><span class="s1">anims </span><span class="s0">in </span><span class="s1">animation_name:</span>
+            <span class="s1">dir = os.listdir(</span><span class="s2">f&quot;animations/enemies/</span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">/</span><span class="s0">{</span><span class="s1">anims</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+            <span class="s1">load_frames[anims] = [pygame.image.load(</span><span class="s2">f&quot;animations/enemies/</span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">/</span><span class="s0">{</span><span class="s1">anims</span><span class="s0">}</span><span class="s2">/</span><span class="s0">{</span><span class="s1">frame</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">) </span><span class="s0">for </span><span class="s1">frame </span><span class="s0">in </span><span class="s1">dir]</span>
+            <span class="s1">animations[anims] = Animation(load_frames[anims])</span>
+        <span class="s1">cls.enemies[name].animations = animations</span>
+
+    <span class="s1">@classmethod</span>
+    <span class="s0">def </span><span class="s1">load_enemy(cls</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">x</span><span class="s0">, </span><span class="s1">y):</span>
+        <span class="s1">cls.enemies[name].x = x</span>
+        <span class="s1">cls.enemies[name].y = y</span>
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>game.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+game.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+<span class="s0">from </span><span class="s1">player </span><span class="s0">import </span><span class="s1">Player</span>
+<span class="s0">from </span><span class="s1">bestiary </span><span class="s0">import </span><span class="s1">Bestiary</span>
+<span class="s0">from </span><span class="s1">words_and_synonyms </span><span class="s0">import </span><span class="s1">Words</span>
+
+<span class="s1">pygame.init()</span>
+
+<span class="s1">scr = </span><span class="s2">700</span><span class="s0">, </span><span class="s2">700</span>
+
+<span class="s1">win = pygame.display.set_mode(scr)</span>
+<span class="s1">pygame.display.set_caption(</span><span class="s3">&quot;Words and Swords&quot;</span><span class="s1">)</span>
+
+
+<span class="s0">def </span><span class="s1">redrawGameWindow(win</span><span class="s0">, </span><span class="s1">command</span><span class="s0">, </span><span class="s1">player):</span>
+    <span class="s1">font = pygame.font.SysFont(</span><span class="s3">&quot;times new roman&quot;</span><span class="s0">, </span><span class="s2">40</span><span class="s0">, </span><span class="s2">10</span><span class="s1">)</span>
+
+    <span class="s1">win.fill((</span><span class="s2">255</span><span class="s0">,</span><span class="s2">255</span><span class="s0">,</span><span class="s2">255</span><span class="s1">))</span>
+
+    <span class="s1">player.draw(win)</span>
+    <span class="s1">player.play_animation()</span>
+    <span class="s1">Bestiary.enemies[</span><span class="s3">&quot;bad_guy&quot;</span><span class="s1">].draw(win)</span>
+
+    <span class="s1">text = font.render(command</span><span class="s0">, </span><span class="s2">1</span><span class="s0">, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s1">)</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+    <span class="s1">win.blit(text</span><span class="s0">, </span><span class="s1">(scr[</span><span class="s2">0</span><span class="s1">]/</span><span class="s2">2 </span><span class="s1">- text.get_width()/</span><span class="s2">2</span><span class="s0">, </span><span class="s1">scr[</span><span class="s2">1</span><span class="s1">] - text.get_height()))</span>
+
+    <span class="s1">pygame.display.update()</span>
+
+
+<span class="s0">def </span><span class="s1">main():</span>
+    <span class="s1">clock = pygame.time.Clock()</span>
+    <span class="s1">p = Player(</span><span class="s2">50</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s2">100</span><span class="s0">, </span><span class="s2">100</span><span class="s1">)</span>
+    <span class="s1">p.get_attributes(</span><span class="s3">&quot;status&quot;</span><span class="s1">).set_status(</span><span class="s3">&quot;poisoned&quot;</span><span class="s0">, True, </span><span class="s1">level=</span><span class="s2">1</span><span class="s1">)</span>
+    <span class="s1">p.get_attributes(</span><span class="s3">&quot;status&quot;</span><span class="s1">).update_status()</span>
+    <span class="s1">active = </span><span class="s0">False</span>
+    <span class="s1">command = </span><span class="s3">''</span>
+    <span class="s1">run = </span><span class="s0">True</span>
+    <span class="s0">while </span><span class="s1">run:</span>
+        <span class="s1">clock.tick(</span><span class="s2">60</span><span class="s1">)</span>
+        <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+            <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+                <span class="s1">run = </span><span class="s0">False</span>
+                <span class="s1">pygame.quit()</span>
+                <span class="s1">quit()</span>
+
+            <span class="s0">if </span><span class="s1">event.type == pygame.KEYDOWN:</span>
+                <span class="s0">if </span><span class="s1">event.key == pygame.K_RETURN:</span>
+                    <span class="s1">active = </span><span class="s0">not </span><span class="s1">active</span>
+                <span class="s0">if </span><span class="s1">active:</span>
+                    <span class="s0">if </span><span class="s1">event.key == pygame.K_ESCAPE:</span>
+                        <span class="s1">active = </span><span class="s0">False</span>
+                    <span class="s0">elif </span><span class="s1">event.key == pygame.K_BACKSPACE:</span>
+                        <span class="s1">command = command[:-</span><span class="s2">1</span><span class="s1">]</span>
+                    <span class="s0">else</span><span class="s1">:</span>
+                        <span class="s1">command += event.unicode</span>
+                <span class="s0">if </span><span class="s1">event.key == pygame.K_p:</span>
+                    <span class="s1">p.move()</span>
+
+        <span class="s1">redrawGameWindow(win</span><span class="s0">, </span><span class="s1">command</span><span class="s0">, </span><span class="s1">p)</span>
+
+
+<span class="s1">main()</span>
+
+</pre>
+</body>
+</html>

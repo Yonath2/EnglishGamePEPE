@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>player.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+player.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span><span class="s0">, </span><span class="s1">os</span>
+<span class="s0">from </span><span class="s1">status </span><span class="s0">import </span><span class="s1">Status</span>
+<span class="s0">from </span><span class="s1">inventory </span><span class="s0">import </span><span class="s1">Inventory</span>
+<span class="s0">from </span><span class="s1">animation </span><span class="s0">import </span><span class="s1">Animation</span>
+
+
+<span class="s0">class </span><span class="s1">Player:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">width</span><span class="s0">, </span><span class="s1">height</span><span class="s0">, </span><span class="s1">max_health):</span>
+        <span class="s1">self.x = x</span>
+        <span class="s1">self.y = y</span>
+        <span class="s1">self.width = width</span>
+        <span class="s1">self.height = height</span>
+        <span class="s1">self.default_char = pygame.image.load(</span><span class="s2">&quot;animations/player/walk_right/1.png&quot;</span><span class="s1">)</span>
+        <span class="s1">self.char = self.default_char</span>
+        <span class="s1">self.rect = (x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">width</span><span class="s0">, </span><span class="s1">height)</span>
+        <span class="s1">self.attributes = {</span><span class="s2">&quot;max_health&quot;</span><span class="s1">: max_health</span><span class="s0">,</span>
+                           <span class="s2">&quot;current_health&quot;</span><span class="s1">: max_health</span><span class="s0">,</span>
+                           <span class="s2">&quot;base_damage&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s0">,</span>
+                           <span class="s2">&quot;temporary_attack_bonus&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s0">,</span>
+                           <span class="s2">&quot;attack_bonus_multiplier&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s0">,  </span><span class="s4"># nombre par lequel est multiplié le nombre de synonymes pour déterminer le bonus d'attaque</span>
+                           <span class="s2">&quot;armor&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s0">,</span>
+                           <span class="s2">&quot;temporary_armor_bonus&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s0">,</span>
+                           <span class="s2">&quot;armor_enchantment&quot;</span><span class="s1">: </span><span class="s0">None,</span>
+                           <span class="s2">&quot;status&quot;</span><span class="s1">: Status()</span><span class="s0">,</span>
+                           <span class="s2">&quot;inventory&quot;</span><span class="s1">: Inventory()}</span>
+        <span class="s1">self.load_frames = {}</span>
+        <span class="s1">self.animations = {}</span>
+        <span class="s1">animation_name = os.listdir(</span><span class="s2">&quot;animations/player&quot;</span><span class="s1">)</span>
+        <span class="s0">for </span><span class="s1">name </span><span class="s0">in </span><span class="s1">animation_name:</span>
+            <span class="s1">dir = os.listdir(</span><span class="s2">f&quot;animations/player/</span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+            <span class="s1">self.load_frames[name] = [pygame.image.load(</span><span class="s2">f&quot;animations/player/</span><span class="s0">{</span><span class="s1">name</span><span class="s0">}</span><span class="s2">/</span><span class="s0">{</span><span class="s1">frame</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">) </span><span class="s0">for </span><span class="s1">frame </span><span class="s0">in </span><span class="s1">dir]</span>
+            <span class="s1">self.animations[name] = Animation(self.load_frames[name])</span>
+        <span class="s1">self.anim_wait_list = []</span>
+
+    <span class="s0">def </span><span class="s1">update(self):</span>
+        <span class="s1">self.rect = (self.x</span><span class="s0">, </span><span class="s1">self.y</span><span class="s0">, </span><span class="s1">self.width</span><span class="s0">, </span><span class="s1">self.height)</span>
+        <span class="s1">self.get_attributes(</span><span class="s2">&quot;status&quot;</span><span class="s1">).update_status()</span>
+
+    <span class="s0">def </span><span class="s1">get_attributes(self</span><span class="s0">, </span><span class="s1">attribute=</span><span class="s0">None</span><span class="s1">):</span>
+        <span class="s0">if </span><span class="s1">attribute </span><span class="s0">is None</span><span class="s1">:</span>
+            <span class="s0">return </span><span class="s1">self.attributes</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s0">try</span><span class="s1">:</span>
+                <span class="s0">return </span><span class="s1">self.attributes[attribute]</span>
+            <span class="s0">except </span><span class="s1">KeyError:</span>
+                <span class="s1">print(</span><span class="s2">&quot;This attribute does not exist&quot;</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">set_attribute(self</span><span class="s0">, </span><span class="s1">attribute</span><span class="s0">, </span><span class="s1">value):</span>
+        <span class="s0">if </span><span class="s1">attribute == </span><span class="s2">&quot;status&quot;</span><span class="s1">:</span>
+            <span class="s1">print(</span><span class="s2">&quot;To set the status, use the get_attributes('status').set_status(status, state, level=0) command&quot;</span><span class="s1">)</span>
+            <span class="s0">return</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">self.attributes[attribute] = value</span>
+        <span class="s0">except </span><span class="s1">KeyError:</span>
+            <span class="s1">print(</span><span class="s2">f&quot;This attribute '</span><span class="s0">{</span><span class="s1">attribute</span><span class="s0">}</span><span class="s2">' does not exist&quot;</span><span class="s1">)</span>
+
+    <span class="s2">&quot;&quot;&quot; 
+    def get_status(self, status=None): 
+        if status is None: 
+            return self.attributes[&quot;status&quot;] 
+        else: 
+            try: 
+                return self.attributes[&quot;status&quot;].get_status(status) 
+            except: 
+                print(&quot;This status does not exist&quot;) 
+    &quot;&quot;&quot;</span>
+
+    <span class="s0">def </span><span class="s1">move(self):</span>
+        <span class="s1">self.set_animation(</span><span class="s2">&quot;walk_right&quot;</span><span class="s0">, </span><span class="s1">self.default_char</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s1">repeat=</span><span class="s3">0</span><span class="s1">)</span>
+        <span class="s1">self.set_animation(</span><span class="s2">&quot;walk_left&quot;</span><span class="s0">, </span><span class="s1">self.default_char</span><span class="s0">, </span><span class="s3">10</span><span class="s0">, </span><span class="s1">repeat=</span><span class="s3">0</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">set_animation(self</span><span class="s0">, </span><span class="s1">animation</span><span class="s0">, </span><span class="s1">new_state</span><span class="s0">, </span><span class="s1">speed</span><span class="s0">, </span><span class="s1">repeat=</span><span class="s3">0</span><span class="s1">):</span>
+        <span class="s1">self.anim_wait_list.append((self.animations[animation]</span><span class="s0">, </span><span class="s1">new_state</span><span class="s0">, </span><span class="s1">speed</span><span class="s0">, </span><span class="s1">repeat))</span>
+
+    <span class="s0">def </span><span class="s1">play_animation(self):</span>
+        <span class="s0">if not </span><span class="s1">self.anim_wait_list == []:</span>
+            <span class="s1">anim_playing = self.anim_wait_list[</span><span class="s3">0</span><span class="s1">]</span>
+            <span class="s1">animation = anim_playing[</span><span class="s3">0</span><span class="s1">]</span>
+            <span class="s1">new_state = anim_playing[</span><span class="s3">1</span><span class="s1">]</span>
+            <span class="s1">speed = anim_playing[</span><span class="s3">2</span><span class="s1">]</span>
+            <span class="s1">repeat = anim_playing[</span><span class="s3">3</span><span class="s1">]</span>
+            <span class="s1">playing = animation.play(new_state</span><span class="s0">, </span><span class="s1">speed</span><span class="s0">, </span><span class="s1">repeat)</span>
+            <span class="s0">if </span><span class="s1">playing != new_state:</span>
+                <span class="s1">self.char = playing</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">self.char = new_state</span>
+                <span class="s1">animation.reset()</span>
+                <span class="s1">self.anim_wait_list.pop(</span><span class="s3">0</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">attack(self):</span>
+        <span class="s0">pass</span>
+
+    <span class="s0">def </span><span class="s1">defense(self):</span>
+        <span class="s0">pass</span>
+
+    <span class="s0">def </span><span class="s1">draw(self</span><span class="s0">, </span><span class="s1">win):</span>
+        <span class="s1">pygame.draw.rect(win</span><span class="s0">, </span><span class="s1">(</span><span class="s3">0</span><span class="s0">, </span><span class="s3">255</span><span class="s0">, </span><span class="s3">255</span><span class="s1">)</span><span class="s0">, </span><span class="s1">self.rect)</span>
+        <span class="s1">win.blit(self.char</span><span class="s0">, </span><span class="s1">(self.x</span><span class="s0">, </span><span class="s1">self.y))</span>
+</pre>
+</body>
+</html>
