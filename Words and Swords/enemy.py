@@ -1,12 +1,15 @@
 from status import Status
+from animation import Animation
+import os, pygame
 
 
 class Enemy:
-    def __init__(self, char):
+    def __init__(self, char, name):
         self.x = 0
         self.y = 0
         self.width = char.get_width()
         self.height = char.get_height()
+        self.name = name
         self.rect = (self.x, self.y, self.width, self.height)
         self.attributes = {"max_health": 0,
                            "current_health": 0,
@@ -20,11 +23,48 @@ class Enemy:
                            "status": Status(),
                            "loot_table": []}
         self.char = char
+        self.load_frames = {}
         self.animations = {}
         self.anim_wait_list = []
 
+    def get_name(self):
+        return self.name
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
+
+    def load_animations(self, width=None, height=None):
+        self.char = pygame.image.load(f"animations/enemies/{self.get_name()}/default/1.png")
+        animation_name = os.listdir(f"animations/enemies/{self.get_name()}")
+        if width is None or height is None:
+            width = self.get_width()
+            height = self.get_height()
+        self.char = pygame.transform.scale(self.char, (width, height))
+        for anims in animation_name:
+            dir = os.listdir(f"animations/enemies/{self.get_name()}/{anims}")
+            frames = [pygame.image.load(f"animations/enemies/{self.get_name()}/{anims}/{frame}") for frame in dir]
+            self.load_frames[anims] = [pygame.transform.scale(frame, (width, height)) for frame in frames]
+            self.animations[anims] = Animation(self.load_frames[anims])
+
+    def set_new_size(self, new_scr, size, scr_width_ratio):
+        ratio = self.get_width() / self.get_height()
+        if self.get_width() / size[1] != scr_width_ratio:
+            new_e_width = int(new_scr[0] * scr_width_ratio)
+            new_e_height = int(new_e_width * ratio ** -1)
+        else:
+            new_e_width = int((self.get_width() ** 3 * new_scr) / (scr_width_ratio / self.get_width()) ** -1)
+            new_e_height = int(new_e_width * ratio ** -1)
+        self.load_animations(width=new_e_width, height=new_e_height)
+
+    def set_pos(self, x, y):
+        self.x = x
+        self.y = y
+
     def update(self):
-        self.rect = (self.x, self.y, self.width, self.height)
+        self.rect = (self.x, self.y, self.get_width(), self.get_height())
         self.get_attributes("status").update_status()
 
     def get_attributes(self, attribute=None):
@@ -76,7 +116,10 @@ class Enemy:
     """
 
     def set_animation(self, animation, new_state, speed, repeat=0):
-        self.anim_wait_list.append((self.animations[animation], new_state, speed, repeat))
+        try:
+            self.anim_wait_list.append((self.animations[animation], new_state, speed, repeat))
+        except KeyError:
+            print(f"Error from Enemy.set_animation: this animation '{animation}' does not exist")
 
     def play_animation(self):
         if not self.anim_wait_list == []:
@@ -96,5 +139,5 @@ class Enemy:
     def attack(self):
         pass
 
-    def draw(self, win):
-        win.blit(self.char, (self.x, self.y))
+    def draw(self, win, scr):
+        win.blit(self.char, (self.x/100 * scr[0], self.y/100 * scr[1]))

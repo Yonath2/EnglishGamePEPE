@@ -25,15 +25,40 @@ class Player:
                            "inventory": Inventory()}
         self.load_frames = {}
         self.animations = {}
-        animation_name = os.listdir("animations/player")
-        for name in animation_name:
-            dir = os.listdir(f"animations/player/{name}")
-            self.load_frames[name] = [pygame.image.load(f"animations/player/{name}/{frame}") for frame in dir]
-            self.animations[name] = Animation(self.load_frames[name])
         self.anim_wait_list = []
 
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
+
+    def load_animations(self, width=None, height=None):
+        animation_name = os.listdir("animations/player")
+        self.default_char = pygame.image.load("animations/player/default/1.png")
+        if width is None or height is None:
+            width = self.get_width()
+            height = self.get_height()
+        self.default_char = pygame.transform.scale(self.default_char, (width, height))
+        self.char = self.default_char
+        for name in animation_name:
+            dir = os.listdir(f"animations/player/{name}")
+            frames = [pygame.image.load(f"animations/player/{name}/{frame}") for frame in dir]
+            self.load_frames[name] = [pygame.transform.scale(frame, (width, height)) for frame in frames]
+            self.animations[name] = Animation(self.load_frames[name])
+
+    def set_new_size(self, new_scr, size, scr_width_ratio):
+        ratio = self.get_width()/self.get_height()
+        if self.get_width() / size[1] != scr_width_ratio:
+            new_p_width = int(new_scr[0] * scr_width_ratio)
+            new_p_height = int(new_p_width * ratio ** -1)
+        else:
+            new_p_width = int((self.get_width() ** 3 * new_scr) / (scr_width_ratio / self.get_width()) ** -1)
+            new_p_height = int(new_p_width * ratio ** -1)
+        self.load_animations(width=new_p_width, height=new_p_height)
+
     def update(self):
-        self.rect = (self.x, self.y, self.width, self.height)
+        self.rect = (self.x, self.y, self.get_width(), self.get_height())
         self.get_attributes("status").update_status()
 
     def get_attributes(self, attribute=None):
@@ -54,6 +79,8 @@ class Player:
             self.attributes[attribute] = value
         except KeyError:
             print(f"Error from Player.set_attribute: This attribute '{attribute}' does not exist")
+
+
 
     """
     def get_status(self, status=None):
@@ -95,6 +122,6 @@ class Player:
     def defense(self):
         pass
 
-    def draw(self, win):
+    def draw(self, win, scr):
         #pygame.draw.rect(win, (0, 255, 255), self.rect)
-        win.blit(self.char, (self.x, self.y))
+        win.blit(self.char, (self.x/100 * scr[0], self.y/100 * scr[1]))
