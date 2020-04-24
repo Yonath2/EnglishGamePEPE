@@ -22,7 +22,8 @@ class Enemy:
                            "weaknesses": [],
                            "status": Status(),
                            "loot_table": []}
-        self.char = char
+        self.default_char = char
+        self.char = self.default_char
         self.load_frames = {}
         self.animations = {}
         self.anim_wait_list = []
@@ -37,12 +38,13 @@ class Enemy:
         return self.height
 
     def load_animations(self, width=None, height=None):
-        self.char = pygame.image.load(f"animations/enemies/{self.get_name()}/default/1.png")
+        self.default_char = pygame.image.load(f"animations/enemies/{self.get_name()}/default/1.png")
         animation_name = os.listdir(f"animations/enemies/{self.get_name()}")
         if width is None or height is None:
             width = self.get_width()
             height = self.get_height()
-        self.char = pygame.transform.scale(self.char, (width, height))
+        self.default_char = pygame.transform.scale(self.default_char, (width, height))
+        self.char = self.default_char
         for anims in animation_name:
             dir = os.listdir(f"animations/enemies/{self.get_name()}/{anims}")
             frames = [pygame.image.load(f"animations/enemies/{self.get_name()}/{anims}/{frame}") for frame in dir]
