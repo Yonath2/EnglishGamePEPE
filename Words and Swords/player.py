@@ -10,11 +10,16 @@ class Player:
         self.y = y
         self.width = width
         self.height = height
-        self.default_char = pygame.image.load("animations/player/default/1.png")
+        self.current_width = self.width
+        self.current_height = self.height
+        self.default_char = pygame.image.load("animations/player/idle/1.png")
         self.char = self.default_char
         self.rect = (x, y, width, height)
         self.attributes = {"max_health": max_health,
                            "current_health": max_health,
+                           "max_mana": 0,
+                           "current_mana": 0,
+                           "initiative": 0,  # nombre qui indique l'ordre des tours; celui qui a la plus grande commence, puis, c'est au deuxième plus grand, etc.
                            "base_damage": 0,
                            "temporary_attack_bonus": 0,
                            "attack_bonus_multiplier": 0,  # nombre par lequel est multiplié le nombre de synonymes pour déterminer le bonus d'attaque
@@ -27,15 +32,21 @@ class Player:
         self.animations = {}
         self.anim_wait_list = []
 
-    def get_width(self):
-        return self.width
+    def get_width(self, current=False):
+        if not current:
+            return self.width
+        else:
+            return self.current_width
 
-    def get_height(self):
-        return self.height
+    def get_height(self, current=False):
+        if not current:
+            return self.height
+        else:
+            return self.current_height
 
     def load_animations(self, width=None, height=None):
         animation_name = os.listdir("animations/player")
-        self.default_char = pygame.image.load("animations/player/default/1.png")
+        self.default_char = pygame.image.load("animations/player/idle/1.png")
         if width is None or height is None:
             width = self.get_width()
             height = self.get_height()
@@ -56,6 +67,7 @@ class Player:
             new_p_width = int((self.get_width() ** 3 * new_scr) / (scr_width_ratio / self.get_width()) ** -1)
             new_p_height = int(new_p_width * ratio ** -1)
         self.load_animations(width=new_p_width, height=new_p_height)
+        self.current_width, self.current_height = new_p_width, new_p_height
 
     def update(self):
         self.rect = (self.x, self.y, self.get_width(), self.get_height())
@@ -115,6 +127,9 @@ class Player:
                 self.char = new_state
                 animation.reset()
                 self.anim_wait_list.pop(0)
+        else:
+            # idle animation
+            self.char = self.animations["idle"].play(self.default_char, 100, repeat=-1)
 
     def attack(self):
         pass

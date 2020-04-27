@@ -9,10 +9,13 @@ class Enemy:
         self.y = 0
         self.width = char.get_width()
         self.height = char.get_height()
+        self.current_width = self.width
+        self.current_height = self.height
         self.name = name
         self.rect = (self.x, self.y, self.width, self.height)
         self.attributes = {"max_health": 0,
                            "current_health": 0,
+                           "initiative": 0,  # nombre qui indique l'ordre des tours; celui qui a la plus grande commence, puis, c'est au deuxième plus grand, etc.
                            "base_damage": 0,
                            "temporary_damage_bonus": 0,
                            "armor": 0,
@@ -31,14 +34,20 @@ class Enemy:
     def get_name(self):
         return self.name
 
-    def get_width(self):
-        return self.width
+    def get_width(self, current=False):
+        if not current:
+            return self.width
+        else:
+            return self.current_width
 
-    def get_height(self):
-        return self.height
+    def get_height(self, current=False):
+        if not current:
+            return self.height
+        else:
+            return self.current_height
 
     def load_animations(self, width=None, height=None):
-        self.default_char = pygame.image.load(f"animations/enemies/{self.get_name()}/default/1.png")
+        self.default_char = pygame.image.load(f"animations/enemies/{self.get_name()}/idle/1.png")
         animation_name = os.listdir(f"animations/enemies/{self.get_name()}")
         if width is None or height is None:
             width = self.get_width()
@@ -60,10 +69,14 @@ class Enemy:
             new_e_width = int((self.get_width() ** 3 * new_scr) / (scr_width_ratio / self.get_width()) ** -1)
             new_e_height = int(new_e_width * ratio ** -1)
         self.load_animations(width=new_e_width, height=new_e_height)
+        self.current_width, self.current_height = new_e_width, new_e_height
 
     def set_pos(self, x, y):
         self.x = x
         self.y = y
+
+    def get_pos(self):
+        return self.x, self.y
 
     def update(self):
         self.rect = (self.x, self.y, self.get_width(), self.get_height())
@@ -137,6 +150,9 @@ class Enemy:
                 self.char = new_state
                 animation.reset()
                 self.anim_wait_list.pop(0)
+        else:
+            # idle animation
+            self.char = self.animations["idle"].play(self.default_char, 100, repeat=-1)
 
     def attack(self):
         pass

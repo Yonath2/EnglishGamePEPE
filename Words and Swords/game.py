@@ -8,15 +8,20 @@ pygame.init()
 
 scr = [960, 720]
 
-ratios = {"scr": scr[0]/scr[1]}
+BACKGROUND_COLOR = (51, 57, 65)
+LINES_COLOR = (146, 220, 190)
+
+ratios = {"scr": scr[0]/scr[1],
+          "font": 40/scr[1]}
 
 win = pygame.display.set_mode(scr, pygame.RESIZABLE)
 pygame.display.set_caption("Words and Swords")
 
 active_enemies = []
 
-def redrawGameWindow(win, command, player, enemies):
-    font = pygame.font.SysFont("times new roman", 40)
+
+def redrawGameWindow(win, command, player, enemies, scr_height, font_ratio):
+    font = pygame.font.SysFont("times new roman", int(scr_height*font_ratio))
 
     win.fill((255,255,255))
 
@@ -24,6 +29,7 @@ def redrawGameWindow(win, command, player, enemies):
 
     player.draw(win, scr)
     player.play_animation()
+
     for enemy in enemies:
         enemy.draw(win, scr)
         enemy.play_animation()
@@ -49,17 +55,20 @@ def main():
     global win, scr, active_enemies
     clock = pygame.time.Clock()
 
+    # <Test>
     Bestiary.load_enemies()
-    add_active_enemy("bad_guy", 75, 40)
+    add_active_enemy("charcadonic_lizard", 75, 40)
+    add_active_enemy("slim_the_slimy_slime", 75, 30)
     Background.load_backgrounds(scr[0], scr[1])
 
-    p = Player(x=25, y=40, width=125, height=175, max_health=100)  # la position du personnage est en pourcentage de l'écran
+    p = Player(x=5, y=40, width=125, height=175, max_health=100)  # la position du personnage est en pourcentage de l'écran
     ratios["player_scr_width"] = p.get_width()/scr[0]
     p.load_animations()
     p.get_attributes("status").set_status("poisoned", True, level=1)
     p.get_attributes("status").update_status()
 
-    Background.set_background_active("menu", 10)
+    Background.set_background_active("menu", 50)
+    # <\Test>
 
     active = False
     command = ''
@@ -99,9 +108,8 @@ def main():
                         command += event.unicode
                 if event.key == pygame.K_p:
                     p.move()
-                    Bestiary.enemies["bad_guy"].set_animation("blinking", Bestiary.enemies["bad_guy"].char, 10, 3)
 
-        redrawGameWindow(win, command, p, active_enemies)
+        redrawGameWindow(win, command, p, active_enemies, scr[1], ratios["font"])
 
 
 main()
