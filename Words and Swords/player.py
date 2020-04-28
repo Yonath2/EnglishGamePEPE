@@ -44,6 +44,18 @@ class Player:
         else:
             return self.current_height
 
+    def set_absolute_pos(self, x, y):
+        self.x = x
+        self.y = y
+
+    def get_absolute_pos(self):
+        return self.x, self.y
+
+    def get_relative_pos(self, scr):
+        rx = self.x / 100 * scr[0]
+        ry = self.y / 100 * scr[1]
+        return rx, ry
+
     def load_animations(self, width=None, height=None):
         animation_name = os.listdir("animations/player")
         self.default_char = pygame.image.load("animations/player/idle/1.png")
@@ -127,9 +139,10 @@ class Player:
                 self.char = new_state
                 animation.reset()
                 self.anim_wait_list.pop(0)
+                self.animations["idle"].reset()  # reset idle animation
         else:
             # idle animation
-            self.char = self.animations["idle"].play(self.default_char, 100, repeat=-1)
+            self.char = self.animations["idle"].play(self.default_char, 50, repeat=-1)
 
     def attack(self):
         pass
